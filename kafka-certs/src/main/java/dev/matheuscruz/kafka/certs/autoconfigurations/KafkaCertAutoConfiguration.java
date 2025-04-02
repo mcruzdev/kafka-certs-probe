@@ -1,6 +1,5 @@
 package dev.matheuscruz.kafka.certs.autoconfigurations;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,9 +8,9 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -21,6 +20,7 @@ public class KafkaCertAutoConfiguration {
 
    private static final Logger logger = LoggerFactory.getLogger(KafkaCertAutoConfiguration.class);
    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+   private final ExecutorService asyncExecutor = Executors.newFixedThreadPool(2);
 
    public KafkaCertAutoConfiguration(ApplicationContext context) {
    }
@@ -44,8 +44,8 @@ public class KafkaCertAutoConfiguration {
 
    private void runAsync() {
       CompletableFuture.runAsync(() -> {
-
-      }).exceptionally(throwable -> {
+         logger.info("checking certificate");
+      }, asyncExecutor).exceptionally(throwable -> {
          logger.error("error checking certificate", throwable);
          return null;
       }).thenApply(unused -> {

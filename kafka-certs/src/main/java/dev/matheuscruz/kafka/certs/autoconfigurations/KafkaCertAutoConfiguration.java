@@ -48,14 +48,12 @@ public class KafkaCertAutoConfiguration {
       }, asyncExecutor).exceptionally(throwable -> {
          logger.error("error checking certificate", throwable);
          return null;
-      }).thenApply(unused -> {
-         logger.info("certificate checked");
-         return null;
-      });
+      }).thenRun(() -> logger.info("certificate checked"));
    }
 
    @PreDestroy
    void destroy() {
-      scheduler.shutdown();
+      scheduler.shutdownNow();
+      asyncExecutor.shutdownNow();
    }
 }

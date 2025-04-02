@@ -39,7 +39,6 @@ public class KafkaCertAutoConfiguration {
    public InitializingBean generateCertificate() {
       return () -> {
          logger.info("generating mock certificate");
-         scheduler.scheduleAtFixedRate(this::runAsync, 0, 1, TimeUnit.SECONDS);
       };
    }
 
